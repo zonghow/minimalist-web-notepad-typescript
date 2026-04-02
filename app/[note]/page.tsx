@@ -4,6 +4,8 @@ import { Notepad } from "@/components/notepad";
 import { MAX_NOTE_LENGTH_BYTES, readNote } from "@/lib/note";
 import { generateRandomNoteName, isValidNoteName } from "@/lib/note-name";
 
+export const dynamic = "force-dynamic";
+
 type NotePageProps = {
   params: Promise<{
     note: string;
