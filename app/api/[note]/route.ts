@@ -76,7 +76,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
   } catch (error) {
     if (error instanceof NoteTooLargeError) {
       return withCommonHeaders(
-        new NextResponse(`Note exceeds the ${MAX_NOTE_LENGTH_BYTES / 1024} KB limit.`, {
+        new NextResponse(`Note exceeds the ${MAX_NOTE_LENGTH_BYTES} byte limit.`, {
           status: 413,
           headers: {
             "Content-Type": "text/plain; charset=utf-8",

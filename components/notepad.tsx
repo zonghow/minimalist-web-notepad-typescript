@@ -135,9 +135,9 @@ export function Notepad({ initialContent, maxNoteLengthBytes, note }: NotepadPro
     : currentByteLength >= maxNoteLengthBytes * 0.9
       ? "byte-counter is-near-limit"
       : "byte-counter";
-  const byteCounterText = `${currentByteLength} 字节 / ${Math.round(maxNoteLengthBytes / 1024)} KB`;
+  const byteCounterText = `${currentByteLength} / ${maxNoteLengthBytes} 字节`;
   const saveMessage = isOverLimit
-    ? `已超过 ${Math.round(maxNoteLengthBytes / 1024)} KB，已暂停自动保存。恢复到限制内后会自动继续保存。`
+    ? `已超过 ${maxNoteLengthBytes} 字节，已暂停自动保存。恢复到限制内后会自动继续保存。`
     : saveErrorMessage;
   const progressClassName = saveState === "idle" ? "save-progress" : `save-progress is-visible is-${saveState}`;
 
