@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 type NotepadProps = {
   initialContent: string;
+  maxNoteLengthBytes: number;
   note: string;
 };
 
@@ -12,10 +13,16 @@ type SaveState = "idle" | "saving" | "success" | "error";
 const MINIMUM_PROGRESS_VISIBILITY_MS = 400;
 const SUCCESS_PROGRESS_VISIBILITY_MS = 220;
 const ERROR_PROGRESS_VISIBILITY_MS = 700;
+const textEncoder = new TextEncoder();
 
-export function Notepad({ initialContent, note }: NotepadProps) {
+function getByteLength(text: string): number {
+  return textEncoder.encode(text).length;
+}
+
+export function Notepad({ initialContent, maxNoteLengthBytes, note }: NotepadProps) {
   const [value, setValue] = useState(initialContent);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const printableRef = useRef<HTMLPreElement>(null);
   const savedContentRef = useRef(initialContent);
@@ -73,7 +80,15 @@ export function Notepad({ initialContent, note }: NotepadProps) {
       const nextValue = valueRef.current;
 
       if (savedContentRef.current !== nextValue) {
+        if (getByteLength(nextValue) > maxNoteLengthBytes) {
+          clearHideProgressTimeout();
+          setSaveState("idle");
+          scheduleNext();
+          return;
+        }
+
         showProgress();
+        setSaveErrorMessage(null);
 
         try {
           const response = await fetch(`/${note}`, {
@@ -88,6 +103,10 @@ export function Notepad({ initialContent, note }: NotepadProps) {
             savedContentRef.current = nextValue;
             finishProgress("success");
           } else {
+            if (response.status === 413) {
+              setSaveErrorMessage(await response.text());
+            }
+
             finishProgress("error");
           }
         } catch {
@@ -107,8 +126,19 @@ export function Notepad({ initialContent, note }: NotepadProps) {
 
       clearHideProgressTimeout();
     };
-  }, [note]);
+  }, [maxNoteLengthBytes, note]);
 
+  const currentByteLength = getByteLength(value);
+  const isOverLimit = currentByteLength > maxNoteLengthBytes;
+  const byteCounterClassName = isOverLimit
+    ? "byte-counter is-over-limit"
+    : currentByteLength >= maxNoteLengthBytes * 0.9
+      ? "byte-counter is-near-limit"
+      : "byte-counter";
+  const byteCounterText = `${currentByteLength} 字节 / ${Math.round(maxNoteLengthBytes / 1024)} KB`;
+  const saveMessage = isOverLimit
+    ? `已超过 ${Math.round(maxNoteLengthBytes / 1024)} KB，已暂停自动保存。恢复到限制内后会自动继续保存。`
+    : saveErrorMessage;
   const progressClassName = saveState === "idle" ? "save-progress" : `save-progress is-visible is-${saveState}`;
 
   return (
@@ -116,7 +146,15 @@ export function Notepad({ initialContent, note }: NotepadProps) {
       <div aria-hidden="true" className={progressClassName}>
         <div className="save-progress-bar" />
       </div>
+      {saveMessage ? (
+        <p aria-live="polite" className="save-message" role="alert">
+          {saveMessage}
+        </p>
+      ) : null}
       <div className="container">
+        <div aria-live="polite" className={byteCounterClassName}>
+          {byteCounterText}
+        </div>
         <textarea id="content" onChange={(event) => setValue(event.target.value)} ref={textareaRef} value={value} />
       </div>
       <pre id="printable" ref={printableRef} />

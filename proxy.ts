@@ -8,7 +8,7 @@ function withCommonHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const { nextUrl } = request;
   const pathname = nextUrl.pathname;
 

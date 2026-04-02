@@ -49,6 +49,22 @@ body {
         transform 0.18s ease-out;
 }
 
+.save-message {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    z-index: 10000;
+    margin: 0;
+    padding: 8px 12px;
+    max-width: calc(100% - 20px);
+    border: 1px solid #f0b3b3;
+    border-radius: 6px;
+    background: #fff1f1;
+    color: #9f2020;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    transform: translateX(-50%);
+}
+
 .container {
     position: absolute;
     top: 10px;
@@ -57,9 +73,36 @@ body {
     left: 10px;
 }
 
+.byte-counter {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #596273;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    font-size: 12px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.byte-counter.is-near-limit {
+    background: #fff5d9;
+    color: #8a5b00;
+}
+
+.byte-counter.is-over-limit {
+    background: #fff1f1;
+    color: #9f2020;
+}
+
 #content {
     margin: 0;
     padding: 10px;
+    padding-bottom: 36px;
     overflow-y: auto;
     resize: none;
     width: 100%;
@@ -98,6 +141,27 @@ body {
         color: #fff;
         border-color: #495265;
     }
+
+    .save-message {
+        border-color: #8b3838;
+        background: #4b2121;
+        color: #ffd7d7;
+    }
+
+    .byte-counter {
+        background: rgba(36, 38, 43, 0.92);
+        color: #c7cfdd;
+    }
+
+    .byte-counter.is-near-limit {
+        background: #5a4620;
+        color: #ffe3a1;
+    }
+
+    .byte-counter.is-over-limit {
+        background: #4b2121;
+        color: #ffd7d7;
+    }
 }
 
 @media print {
@@ -106,6 +170,14 @@ body {
     }
 
     .save-progress {
+        display: none;
+    }
+
+    .save-message {
+        display: none;
+    }
+
+    .byte-counter {
         display: none;
     }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateRandomNoteName, isValidNoteName } from "@/lib/note-name";
-import { deleteNote, readNote, writeNote } from "@/lib/note";
+import { deleteNote, MAX_NOTE_LENGTH_BYTES, NoteTooLargeError, readNote, writeNote } from "@/lib/note";
 
 export const runtime = "nodejs";
 
@@ -68,8 +68,24 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
 
   if (text.length === 0) {
     await deleteNote(note);
-  } else {
+    return withCommonHeaders(new NextResponse(null, { status: 200 }));
+  }
+
+  try {
     await writeNote(note, text);
+  } catch (error) {
+    if (error instanceof NoteTooLargeError) {
+      return withCommonHeaders(
+        new NextResponse(`Note exceeds the ${MAX_NOTE_LENGTH_BYTES / 1024} KB limit.`, {
+          status: 413,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        }),
+      );
+    }
+
+    throw error;
   }
 
   return withCommonHeaders(new NextResponse(null, { status: 200 }));

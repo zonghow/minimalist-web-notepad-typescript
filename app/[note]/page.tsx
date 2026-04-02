@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Notepad } from "@/components/notepad";
+import { MAX_NOTE_LENGTH_BYTES, readNote } from "@/lib/note";
 import { generateRandomNoteName, isValidNoteName } from "@/lib/note-name";
-import { readNote } from "@/lib/note";
 
 type NotePageProps = {
   params: Promise<{
@@ -27,5 +27,5 @@ export default async function NotePage({ params }: NotePageProps) {
 
   const initialContent = (await readNote(note)) ?? "";
 
-  return <Notepad initialContent={initialContent} note={note} />;
+  return <Notepad initialContent={initialContent} maxNoteLengthBytes={MAX_NOTE_LENGTH_BYTES} note={note} />;
 }
