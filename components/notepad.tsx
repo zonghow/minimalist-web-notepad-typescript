@@ -91,7 +91,7 @@ export function Notepad({ initialContent, maxNoteLengthBytes, note }: NotepadPro
         setSaveErrorMessage(null);
 
         try {
-          const response = await fetch(`/${note}`, {
+          const response = await fetch(`/api/${encodeURIComponent(note)}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
